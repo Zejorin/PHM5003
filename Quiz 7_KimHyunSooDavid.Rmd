@@ -1,0 +1,101 @@
+---
+title: "Quiz7_KimHyunSoo"
+output:
+  html_document:
+    df_print: paged
+date: "2025-10-04"
+---
+
+```{r setup, include=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+if (!require("R.utils", quietly = TRUE))
+    install.packages("R.utils")
+BiocManager::install("maftools")
+library(tidyverse)
+library(maftools)
+library(R.utils)
+
+```
+
+You are analyzing an variant annotation file for a melanoma sample in an a ANNOVAR file: [sample_melanoma.output.genome_summary.csv](https://canvas.nus.edu.sg/courses/80409/files/6938667?wrap=1 "Link")
+
+## 1. Download the file and import it as a dataframe called `mutation` using `annovarToMaf`function from `maftools` library. The genome build is `hg19`
+
+```{r}
+download.file(
+  url = "https://raw.githubusercontent.com/Zejorin/PHM5003/main/sample_melanoma.output.genome_summary.csv",
+  destfile = "sample_melanoma.output.genome_summary.csv"
+)
+
+mutation <- annovarToMaf(
+  "sample_melanoma.output.genome_summary.csv",
+  Center = NULL,
+  refBuild = "hg19",
+  tsbCol = NULL,
+  table = "refGene",
+  ens2hugo = TRUE,
+  basename = NULL,
+  sep = ",",
+  MAFobj = FALSE,
+  sampleAnno = NULL
+)
+```
+
+## Create an MAF object and assign it as `maf`
+
+```{r}
+maf <- read.maf(maf = mutation, 
+                isTCGA = T)
+```
+
+# 3. Summarize the mutations using `plotmafSummary`
+
+```{r}
+# Set plot dimensions
+options(repr.plot.width = 10, repr.plot.height = 10)
+
+plotmafSummary(maf)
+```
+
+# 4. Find the top 5 drug interactions using `drugInteractions`
+
+```{r}
+# Set plot dimensions
+dig <- drugInteractions(maf,top =5)
+```
+
+# 5. Locate the kinase and plot the mutation on this gene using lollipopPlot. Hint: you need to assign the correct column for `AAcol`
+
+```{r}
+# Set plot dimensions
+options(repr.plot.width = 15, repr.plot.height = 5)
+
+lollipopPlot(
+  maf = maf,
+  gene = 'STK19',
+  AACol = 'aaChange',
+  showMutationRate = TRUE,
+  labelPos = "all"
+)
+
+```
+
+```{r}
+
+dgi <- drugInteractions(maf,,genes = "STK19", drugs = T)
+```
+
+**With the data, answer the following questions**
+
+[1. What is the most common nucleotide substitution?]{.underline}
+
+The most common nucleotide substitution is C\>T.
+
+[2. What is the kinase? Is there a drug available for this kinase?]{.underline}
+
+The kinase is STK19. There is no drug available for this kinase.
+
+[3. Where is the mutation located on the kinase based on lollipopPlot?]{.underline}
+
+The mutation is located at around position 285 on the kinase.
